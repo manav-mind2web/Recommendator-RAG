@@ -132,11 +132,6 @@ For a phone‑based voice version of this same assistant I'd use **Twilio** for 
 - **Output moderation** pass and schema‑versioned structured parts.
 - **Secrets via a manager**, not `.env`; least‑privilege DB credentials.
 
-## AI coding tools used
-
-Built with **Claude Code** (Anthropic). Model defaults to `claude-opus-4-8`; override with `ANTHROPIC_MODEL` (e.g. `claude-haiku-4-5`) for a cheaper run on this tiny dataset.
-
----
 
 ## Project layout
 
