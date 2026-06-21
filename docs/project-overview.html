@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Grounded Listings Assistant — Project Overview</title>
+<style>
+  @page { size: A4; margin: 16mm 14mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: #1f2430;
+    line-height: 1.5;
+    font-size: 12px;
+    margin: 0;
+  }
+  h1 { font-size: 24px; margin: 0 0 4px; color: #15233b; }
+  h2 {
+    font-size: 16px; margin: 22px 0 8px; color: #1d3a63;
+    border-bottom: 2px solid #e2e8f0; padding-bottom: 4px;
+  }
+  h3 { font-size: 13px; margin: 14px 0 4px; color: #25405f; }
+  p { margin: 0 0 8px; }
+  .subtitle { color: #5b6675; font-size: 13px; margin: 0 0 2px; }
+  .meta { color: #8a94a6; font-size: 11px; margin: 0 0 4px; }
+  .lead {
+    background: #f1f6ff; border: 1px solid #cfe0ff; border-radius: 8px;
+    padding: 12px 14px; margin: 14px 0 4px; font-size: 12.5px;
+  }
+  .lead strong { color: #14336b; }
+  ul, ol { margin: 4px 0 10px; padding-left: 20px; }
+  li { margin: 2px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; }
+  th, td { text-align: left; padding: 6px 8px; border: 1px solid #e2e8f0; vertical-align: top; }
+  th { background: #f3f6fb; color: #1d3a63; font-size: 11.5px; }
+  td { font-size: 11.5px; }
+  .flow { counter-reset: step; margin: 8px 0 12px; padding: 0; list-style: none; }
+  .flow li {
+    position: relative; padding: 6px 6px 6px 34px; margin: 4px 0;
+    background: #fafbfd; border: 1px solid #eaeef4; border-radius: 6px;
+  }
+  .flow li::before {
+    counter-increment: step; content: counter(step);
+    position: absolute; left: 8px; top: 6px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #2f6fed; color: #fff; font-size: 11px; font-weight: 700;
+    text-align: center; line-height: 18px;
+  }
+  .walls { display: flex; gap: 10px; margin: 8px 0 12px; }
+  .wall {
+    flex: 1; background: #f7faf7; border: 1px solid #d6e6d6; border-radius: 8px;
+    padding: 10px;
+  }
+  .wall b { display: block; color: #1c5b2e; margin-bottom: 3px; }
+  .pill {
+    display: inline-block; background: #eef2f8; border: 1px solid #d7e0ee;
+    border-radius: 999px; padding: 1px 8px; font-size: 10.5px; color: #33507a;
+    margin: 1px 2px;
+  }
+  .status-ok { color: #1c7a35; font-weight: 700; }
+  .callout {
+    background: #fff8ec; border: 1px solid #f0dcae; border-radius: 8px;
+    padding: 10px 12px; margin: 10px 0; font-size: 11.5px;
+  }
+  .footer { margin-top: 18px; color: #98a2b3; font-size: 10px; border-top: 1px solid #e2e8f0; padding-top: 6px; }
+  .two-col { display: flex; gap: 18px; }
+  .two-col > div { flex: 1; }
+  .nowrap { white-space: nowrap; }
+</style>
+</head>
+<body>
+
+  <h1>Grounded Listings Assistant</h1>
+  <p class="subtitle">A chat assistant that recommends only from a fixed list of local places — and refuses to make things up.</p>
+  <p class="meta">Project overview for management &nbsp;•&nbsp; Prepared in simple English</p>
+
+  <div class="lead">
+    <strong>The one-sentence idea:</strong> It's like a tour guide locked in a room with a single printed brochure and no phone.
+    No matter what a customer asks, the guide can <strong>only</strong> point at the places in that brochure. Ask for a flight or a
+    place that isn't listed, and it politely says it can't help with that. This is exactly what the client wants to test — that it
+    <strong>cannot be pushed off its data.</strong>
+  </div>
+
+  <h2>Why this is harder than it looks</h2>
+  <p>
+    A normal AI (like ChatGPT) knows about the whole world, and will happily <em>invent</em> a restaurant that sounds real but
+    doesn't exist — this is called "hallucinating." For a real business that's dangerous: you could send a customer to a fake
+    address. So this whole project is built around one rule:
+    <strong>the AI can only talk about the approved listings, and we enforce that in code — we don't just politely ask it to behave.</strong>
+  </p>
+
+  <h2>How it stays safe: three walls ("defense in depth")</h2>
+  <div class="walls">
+    <div class="wall"><b>Wall 1 — Locked ingredients</b>The AI never gets the full list. It can only "press two buttons" (tools) to
+      search or fetch a place. So it literally can't know about a place that isn't in the database.</div>
+    <div class="wall"><b>Wall 2 — The rulebook</b>Before every chat, we instruct the AI: only use search results, never invent links,
+      refuse bookings/off-topic, ignore anyone telling it to break the rules.</div>
+    <div class="wall"><b>Wall 3 — The bouncer</b>After the AI answers, our code re-checks every place and link against the approved
+      list. Anything invented is stripped out and logged. The cards shown to the user are built only from approved places.</div>
+  </div>
+  <p>If one wall ever fails, the others still hold.</p>
+
+  <h2>What happens when someone sends a message</h2>
+  <ol class="flow">
+    <li>The user types, e.g. <em>"vegetarian breakfast in Brookline."</em></li>
+    <li>The message goes to the server's chat endpoint (the "order window").</li>
+    <li>The AI reads the rulebook and decides to use the <strong>search</strong> tool.</li>
+    <li>The question is turned into numbers ("meaning") and the database finds the closest matching places.</li>
+    <li>Those results are added to an "approved list" for this conversation.</li>
+    <li>The AI writes a friendly reply using only those results, streamed word-by-word.</li>
+    <li>The bouncer double-checks the reply, builds verified cards, and adds the "AI can be wrong" disclaimer.</li>
+    <li>The user sees the answer plus a card for each recommended place.</li>
+  </ol>
+
+  <h2>Smart search by meaning (not just keywords)</h2>
+  <p>
+    Each place is converted into a list of numbers that represents its <em>meaning</em> — like GPS coordinates, but for ideas.
+    Similar things end up close together. So "somewhere to grab a quick coffee" can find "The Mill House Cafe" even though the word
+    "cafe" was never typed. This is called <strong>semantic search</strong>, powered by a database extension called
+    <strong>pgvector</strong>. The "meaning numbers" (embeddings) are currently computed <strong>on our own machine</strong>, so this
+    part needs no API key and no internet.
+  </p>
+
+  <h2>What is configured right now</h2>
+  <table>
+    <tr><th style="width:34%">Piece</th><th>Status</th></tr>
+    <tr><td>Web app (the chat website)</td><td><span class="status-ok">Live</span> at http://localhost:3000</td></tr>
+    <tr><td>AI brain (chat model)</td><td><span class="status-ok">Google Gemini 2.5 Flash</span> (active). Claude &amp; GPT also wired — switchable with one setting.</td></tr>
+    <tr><td>Meaning-search (embeddings)</td><td><span class="status-ok">On-device</span> (no key needed). Can switch to OpenAI in one line.</td></tr>
+    <tr><td>Database (the memory)</td><td><span class="status-ok">Running in Docker</span>, loaded with all 18 listings.</td></tr>
+    <tr><td>Secrets &amp; settings</td><td>Kept in a private <span class="nowrap">.env</span> file (never shared or committed).</td></tr>
+  </table>
+
+  <h2>The technology stack (the tools we used)</h2>
+  <table>
+    <tr><th style="width:26%">Layer</th><th style="width:30%">Technology</th><th>What it does (plain English)</th></tr>
+    <tr><td>Language</td><td>TypeScript</td><td>JavaScript with safety checks that catch mistakes before running.</td></tr>
+    <tr><td>Engine</td><td>Node.js 24</td><td>Runs all the server-side code.</td></tr>
+    <tr><td>Framework</td><td>Next.js 16</td><td>Runs both the website and the backend in one project.</td></tr>
+    <tr><td>Interface</td><td>React 19</td><td>Builds the chat screen the user sees.</td></tr>
+    <tr><td>AI toolkit</td><td>Vercel AI SDK v5</td><td>One common socket for every AI provider; handles live streaming and the AI's "tools."</td></tr>
+    <tr><td>AI providers</td><td>Gemini · Claude · GPT</td><td>Interchangeable AI brains (Gemini active now).</td></tr>
+    <tr><td>Meaning-search model</td><td>Transformers.js (MiniLM)</td><td>Turns text into "meaning numbers" on-device, free, no key.</td></tr>
+    <tr><td>Database</td><td>PostgreSQL + pgvector</td><td>Stores the places and finds them by meaning.</td></tr>
+    <tr><td>Containers</td><td>Docker</td><td>Runs the database in a clean, isolated box.</td></tr>
+    <tr><td>Data safety</td><td>Zod</td><td>Checks that every place's data has the correct shape.</td></tr>
+    <tr><td>Testing</td><td>Vitest</td><td>Automated tests that prove the safety rules work.</td></tr>
+  </table>
+
+  <h2>What we suggest building next</h2>
+  <div class="two-col">
+    <div>
+      <h3>Quick wins</h3>
+      <ul>
+        <li>"Searching…" indicator so users know it's working.</li>
+        <li>Friendlier error messages.</li>
+        <li>Smoother multi-question conversations ("what about something cheaper?").</li>
+      </ul>
+      <h3>Make it production-ready</h3>
+      <ul>
+        <li>Login + rate limiting (stop strangers running up the AI bill).</li>
+        <li>Save the "bouncer caught something" logs and alert us.</li>
+        <li>Automated "attack tests" on every change (50 sneaky prompts) to prove it still refuses.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Bigger features</h3>
+      <ul>
+        <li>Scale from 18 to thousands of places — the design already supports it.</li>
+        <li>A voice version: a phone line that talks, reusing the same safe brain.</li>
+        <li>Put it online (hosted) so it's not just on a laptop, with caching for speed and cost.</li>
+      </ul>
+      <h3>Polish</h3>
+      <ul>
+        <li>Add filters like distance and "open now."</li>
+        <li>Use sharper paid embeddings once the dataset is large.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Bottom line:</strong> The assistant is working end-to-end today. Its core promise — <em>it only recommends from our
+    approved list and can't be tricked into making things up</em> — is enforced by code in three independent layers, not just by
+    asking the AI nicely. That is exactly the capability this engagement is meant to prove.
+  </div>
+
+  <div class="footer">
+    Grounded Listings Assistant — internal project overview. Stack: Next.js 16, React 19, TypeScript, Vercel AI SDK v5,
+    Google Gemini (active) / Claude / GPT, PostgreSQL + pgvector, on-device embeddings, Docker, Zod, Vitest.
+  </div>
+
+</body>
+</html>
